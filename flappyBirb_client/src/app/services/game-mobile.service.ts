@@ -11,6 +11,7 @@ const domain = "https://localhost:44378/";
 export class GameMobileService{
 
     constructor(public http : HttpClient) { }
+  
 
     async register(username : string, email : string, password : string, passwordConfirm : string){
     let registerDTO = {
@@ -36,6 +37,41 @@ export class GameMobileService{
 
     // 🔑 Très important de stocker le token quelque part pour pouvoir l'utiliser dans les futures requêtes !
     localStorage.setItem("token", x.token);
-}
+    }
+
+    async saveScore(scorevalue : number, timeinseconds : number) : Promise<void>{
+
+        let token = localStorage.getItem("token");
+        let httpOptions = {
+        headers : new HttpHeaders({
+        'Content-Type' : 'application/json',
+        'Authorization' : 'Bearer ' + token
+        })
+    };
+
+
+        let dto = {
+            TimeInSeconds : timeinseconds,
+            Scorevalue : scorevalue
+        }
+        let x = await lastValueFrom(this.http.post<any>(domain + "api/Scores/PostScore", dto, httpOptions));
+        console.log(x);
+        
+    }
+
+    async getMyScore(): Promise<Score[]>{
+
+        let s = await lastValueFrom(this.http.get<Score[]>(domain + "api/Scores/GetMyScores"))
+        console.log(s);
+        return s
+
+    }
+
+       
+    
+  
+
+
+
 
 }

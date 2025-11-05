@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Game } from './gameLogic/game';
 import { MaterialModule } from '../material.module';
 import { CommonModule } from '@angular/common';
+import { GameMobileService } from '../services/game-mobile.service';
 
 @Component({
   selector: 'app-play',
@@ -15,7 +16,8 @@ export class PlayComponent implements OnInit{
   game : Game | null = null;
   scoreSent : boolean = false;
 
-  constructor(){}
+ constructor(public gameService : GameMobileService) { }
+
 
   ngOnDestroy(): void {
     // Ceci est crotté mais ne le retirez pas sinon le jeu bug.
@@ -32,7 +34,7 @@ export class PlayComponent implements OnInit{
     this.scoreSent = false;
   }
 
-  sendScore(){
+   sendScore(){
     if(this.scoreSent) return;
 
     this.scoreSent = true;
@@ -41,10 +43,31 @@ export class PlayComponent implements OnInit{
     // Le score est dans sessionStorage.getItem("score")
     // Le temps est dans sessionStorage.getItem("time")
     // La date sera choisie par le serveur
+    let score = sessionStorage.getItem("score");
+    let time = sessionStorage.getItem("time");
+
+    if (!score || !time) {
+      console.error("Aucun score ou temps trouvé");
+      return;
+    }
+
+    let scoreValue = Number(score);
+    let timeInSeconds = Number(time);
+
+    try {
+      this.gameService.saveScore(scoreValue, timeInSeconds);
+      console.log("envoyé");
+    } catch (error) {
+      console.error(" Erreur : ", error);
+    }
+  }
+    
+    
+
 
 
 
   }
 
 
-}
+

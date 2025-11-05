@@ -1,36 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using flappyBirb_serveur.Data;
 using flappyBirb_serveur.Models;
+using flappyBirb_serveur.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace flappyBirb_serveur.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ScoresController : ControllerBase
     {
         private readonly flappyBirb_serveurContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ScoresController(flappyBirb_serveurContext context)
+        public ScoresController(flappyBirb_serveurContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Scores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Score>>> GetScore()
+        public async Task<ActionResult<IEnumerable<Score>>> GetPublicScores()
         {
             return await _context.Score.ToListAsync();
         }
 
         // GET: api/Scores/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Score>> GetScore(int id)
+        [HttpGet("MyScores")]
+        [Authorize]
+        public async Task<ActionResult<Score>> GetMyScores(int id)
         {
             var score = await _context.Score.FindAsync(id);
 
@@ -44,8 +52,8 @@ namespace flappyBirb_serveur.Controllers
 
         // PUT: api/Scores/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutScore(int id, Score score)
+        [HttpPut]
+        public async Task<IActionResult> ChangeScoreVisibility(int id, Score score)
         {
             if (id != score.Id)
             {
@@ -76,29 +84,31 @@ namespace flappyBirb_serveur.Controllers
         // POST: api/Scores
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Score>> PostScore(Score score)
+        [Authorize]
+        public async Task<ActionResult<Score>> PostScore(ScoreDTO scoreDTO)
         {
+            User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            if (user == null) return Unauthorized(); // Non authentifié ou token invalide
+
+            // ✅ Le lien entre l'utilisateur est concrétisé par cette propriété de navigation !
+            Score score = new Score
+            {
+                Id = 0,
+                ScoreValue = scoreDTO.ScoreValue,
+                TimeInSeconds = scoreDTO.TimeInSeconds,
+                Date = DateTime.Now,
+                IsPublic = false,
+               
+            };
+
             _context.Score.Add(score);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetScore", new { id = score.Id }, score);
+            return score;
         }
 
-        // DELETE: api/Scores/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteScore(int id)
-        {
-            var score = await _context.Score.FindAsync(id);
-            if (score == null)
-            {
-                return NotFound();
-            }
-
-            _context.Score.Remove(score);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+       
 
         private bool ScoreExists(int id)
         {

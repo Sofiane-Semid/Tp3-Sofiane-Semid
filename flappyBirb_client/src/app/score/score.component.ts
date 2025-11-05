@@ -3,6 +3,8 @@ import { Score } from '../models/score';
 import { MaterialModule } from '../material.module';
 import { CommonModule } from '@angular/common';
 import { Round00Pipe } from '../pipes/round-00.pipe';
+import { Game } from '../play/gameLogic/game';
+import { GameMobileService } from '../services/game-mobile.service';
 
 @Component({
   selector: 'app-score',
@@ -16,11 +18,18 @@ export class ScoreComponent {
   myScores : Score[] = [];
   publicScores : Score[] = [];
 
-  constructor() { }
+  constructor(public gameService: GameMobileService) { }
 
   async ngOnInit() {
 
-
+    try{
+      this.myScores = await this.gameService.getMyScore();
+      console.log(this.myScores)
+    }
+    catch(erreur){
+      console.error("Erreur : ", erreur)
+    }
+    
 
   }
 

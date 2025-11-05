@@ -14,7 +14,12 @@ namespace flappyBirb_serveur.Data
             : base(options)
         {
         }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder); // Conservez cette ligne de code en tout temps
+        }
 
-        public DbSet<flappyBirb_serveur.Models.Score> Score { get; set; } = default!;
+
+        public DbSet<Score> Score { get; set; } = default!;
     }
 }
