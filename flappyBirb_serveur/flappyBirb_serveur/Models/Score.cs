@@ -22,7 +22,7 @@ namespace flappyBirb_serveur.Models
         public bool IsPublic { get; set; } = false;
 
         // Nom du joueur (optionnel si tu veux afficher le pseudo)
-        public string? Pseudo { get; set; }
+        public virtual User? Pseudo { get; set; }
 
 
     }

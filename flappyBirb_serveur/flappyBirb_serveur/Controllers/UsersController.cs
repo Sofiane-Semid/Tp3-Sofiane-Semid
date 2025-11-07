@@ -74,7 +74,7 @@ namespace flappyBirb_serveur.Controllers
                 SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8
                     .GetBytes("LooOOongue Phrase SiNoN Ça ne Marchera PaAaAAAaAas !")); // Phrase identique dans Program.cs
                 JwtSecurityToken token = new JwtSecurityToken(
-                    issuer: "https://localhost:6969", // ⛔ Vérifiez le PORT de votre serveur dans launchSettings.json !
+                    issuer: "https://localhost:44378", // ⛔ Vérifiez le PORT de votre serveur dans launchSettings.json !
                     audience: "http://localhost:4200",
                     claims: authClaims,
                     expires: DateTime.Now.AddMinutes(30), // Durée de validité du token

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using flappyBirb_serveur.Data;
 
@@ -11,9 +12,11 @@ using flappyBirb_serveur.Data;
 namespace flappyBirb_serveur.Migrations
 {
     [DbContext(typeof(flappyBirb_serveurContext))]
-    partial class flappyBirb_serveurContextModelSnapshot : ModelSnapshot
+    [Migration("20251107135333_flappy")]
+    partial class flappy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

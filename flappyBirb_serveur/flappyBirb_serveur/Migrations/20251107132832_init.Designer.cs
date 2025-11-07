@@ -12,8 +12,8 @@ using flappyBirb_serveur.Data;
 namespace flappyBirb_serveur.Migrations
 {
     [DbContext(typeof(flappyBirb_serveurContext))]
-    [Migration("20251105151549_MigrationDeBatman")]
-    partial class MigrationDeBatman
+    [Migration("20251107132832_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,6 +168,21 @@ namespace flappyBirb_serveur.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Pseudo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ScoreValue")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TimeInSeconds")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using flappyBirb_serveur.Data;
 using flappyBirb_serveur.Models;
 using flappyBirb_serveur.Models.DTOs;
@@ -30,38 +31,53 @@ namespace flappyBirb_serveur.Controllers
 
         // GET: api/Scores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Score>>> GetPublicScores()
+        public async Task<ActionResult<IEnumerable<ScoreDisplayDTO>>> GetPublicScores()
         {
-            return await _context.Score.ToListAsync();
+            IEnumerable<Score> scores = await _context.Score.ToListAsync();
+            return Ok(scores.Select(c => new ScoreDisplayDTO(c)));
+
         }
 
         // GET: api/Scores/5
-        [HttpGet("MyScores")]
+        [HttpGet]
         [Authorize]
-        public async Task<ActionResult<Score>> GetMyScores(int id)
+        public async Task<ActionResult<Score>> GetMyScores()
         {
-            var score = await _context.Score.FindAsync(id);
+            User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+            if (user == null) return Unauthorized();
+           
+
+            var scores = await _context.Score
+                .Where(s => s.Pseudo == user)
+                .OrderByDescending(s => s.Date)
+                .ToListAsync();
+
+            return Ok(scores);
+        }
+
+        // PUT: api/Scores/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ChangeScoreVisibility(int id)
+        {
+            // Recevoir l'id du score à modifier
+            // trouver le score dans la BD
+            var score = await _context.Score.FindAsync(id);
             if (score == null)
             {
                 return NotFound();
             }
 
-            return score;
-        }
+            // S'assurer que celui qui envoie la requête est le propriétaire du score
+            User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        // PUT: api/Scores/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut]
-        public async Task<IActionResult> ChangeScoreVisibility(int id, Score score)
-        {
-            if (id != score.Id)
-            {
-                return BadRequest();
-            }
+            //if (user == null || ) return Unauthorized();
+            
 
-            _context.Entry(score).State = EntityState.Modified;
-
+            // Modifier le score
+            score.IsPublic = !score.IsPublic;
+            // Sauvegarder la BD
             try
             {
                 await _context.SaveChangesAsync();
@@ -78,6 +94,10 @@ namespace flappyBirb_serveur.Controllers
                 }
             }
 
+            // youpi
+
+            
+            
             return NoContent();
         }
 
@@ -99,6 +119,7 @@ namespace flappyBirb_serveur.Controllers
                 TimeInSeconds = scoreDTO.TimeInSeconds,
                 Date = DateTime.Now,
                 IsPublic = false,
+                Pseudo = user
                
             };
 

@@ -23,7 +23,8 @@ export class ScoreComponent {
   async ngOnInit() {
 
     try{
-      this.myScores = await this.gameService.getMyScore();
+      this.myScores = await this.gameService.GetMyScores();
+       this.publicScores = await this.gameService.GetPublicScores()
       console.log(this.myScores)
     }
     catch(erreur){
@@ -35,7 +36,18 @@ export class ScoreComponent {
 
   async changeScoreVisibility(score : Score){
 
+    try {
+    await this.gameService.ChangeScoreVisibility(score.id)
+    score.isPublic = !score.isPublic;
 
+    console.log(this.publicScores);
+  } catch (error) {
+    console.error(error);
+   
+    
+  }
+
+ this.publicScores = await this.gameService.GetPublicScores()
   }
 
 }

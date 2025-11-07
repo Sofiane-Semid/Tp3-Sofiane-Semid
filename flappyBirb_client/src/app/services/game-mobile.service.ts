@@ -59,11 +59,53 @@ export class GameMobileService{
         
     }
 
-    async getMyScore(): Promise<Score[]>{
+    async GetMyScores(): Promise<Score[]>{
 
-        let s = await lastValueFrom(this.http.get<Score[]>(domain + "api/Scores/GetMyScores"))
+      
+      let token = localStorage.getItem("token");
+      let httpOptions = {
+        headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    })
+  };
+
+        let s = await lastValueFrom(this.http.get<Score[]>(domain + "api/Scores/GetMyScores", httpOptions))
         console.log(s);
         return s
+
+    }
+
+    
+   async GetPublicScores(): Promise<Score[]>{
+
+      
+      let token = localStorage.getItem("token");
+      let httpOptions = {
+        headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    })
+  };
+
+        let s = await lastValueFrom(this.http.get<Score[]>(domain + "api/Scores/GetPublicScores", httpOptions))
+        console.log(s);
+        return s
+
+    }
+
+    async ChangeScoreVisibility(id : number): Promise<void>{
+
+      let token = localStorage.getItem("token");
+      let httpOptions = {
+        headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    })
+  };
+      let s = await lastValueFrom(this.http.put<any>(domain + "api/Scores/ChangeScoreVisibility/"+ id,{}, httpOptions ))
+      console.log(s);
+  
 
     }
 
